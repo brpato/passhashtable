@@ -58,8 +58,8 @@ private:
 
 	size_t hash(const string& key) const{ //hash key
 		size_t h = std::hash<string>{}(key);
-		if(strat == 1){return h % buckets.size();}
-		else{return h % bins.size();}
+		if(strat == 1) return h % buckets.size();
+		else return h % bins.size();
 	}
 
 	size_t hash2(const string& key) const{ //alternatively hash key
@@ -119,9 +119,7 @@ private:
 							break;
 						}
 					}
-					if(!inserted){
-						throw runtime_error("rehash fail");
-					}
+					if(!inserted) throw runtime_error("rehash fail");
 				}
 			}
 			bins = std::move(newBins);
@@ -147,29 +145,17 @@ public:
 			int index = 0;
 			int firstDeletedIndex = -1;
 			for(int i = 0; i < bins.size(); i++){
-				if(strat == 2){
-					index = (hash(key) + i) % bins.size();
-				}
-				else if(strat == 3){
-					index = (hash(key) + i * i) % bins.size();
-				}
-				else if(strat == 4){
-					index = (hash(key) + i * hash2(key)) % bins.size();
-				}
+				if(strat == 2) index = (hash(key) + i) % bins.size();
+				else if(strat == 3) index = (hash(key) + i * i) % bins.size();
+				else if(strat == 4) index = (hash(key) + i * hash2(key)) % bins.size();
 				if(state[index] == 1 && bins[index].first == key){
 					bins[index].second = value;
 					return;
 				}
-				if(state[index] == -1){
-					break;
-				}
-				if(state[index] == 0 && firstDeletedIndex == -1){
-					firstDeletedIndex = index;
-				}
+				if(state[index] == -1) break;
+				if(state[index] == 0 && firstDeletedIndex == -1) firstDeletedIndex = index;
 			}
-			if(firstDeletedIndex != -1){
-				index = firstDeletedIndex;
-			}
+			if(firstDeletedIndex != -1) index = firstDeletedIndex;
 			if(firstDeletedIndex != -1 || state[index] == -1){
 				bins[index] = {key, value};
 				state[index] = 1;
@@ -181,38 +167,23 @@ public:
 				return;
 			}
 		}
-
-		if(loadFactor() >= tolerance){
-		    resish();
-		}
+		if(loadFactor() >= tolerance) resish();
 	}
 
 	optional<Credentials> find(const string& key) const{ //return the value paired with key using key
 		int index = hash(key);
 		if(strat == 1){ //separate chaining
 			for(const auto& entry : buckets[index]){
-				if(entry.first == key){
-					return entry.second;
-				}
+				if(entry.first == key) return entry.second;
 			}
 		}
 		else{ //linear & quadratic probing & double hashing
 			for(int i = 0; i < bins.size(); i++){
-				if(strat == 2){
-					index = (hash(key) + i) % bins.size();
-				}
-				else if(strat == 3){
-					index = (hash(key) + i * i) % bins.size();
-				}
-				else if(strat == 4){
-					index = (hash(key) + i * hash2(key)) % bins.size();
-				}
-				if(state[index] == 1 && bins[index].first == key){
-					return bins[index].second;
-				}
-				if(state[index] == -1){
-					break;
-				}
+				if(strat == 2) index = (hash(key) + i) % bins.size();
+				else if(strat == 3) index = (hash(key) + i * i) % bins.size();
+				else if(strat == 4) index = (hash(key) + i * hash2(key)) % bins.size();
+				if(state[index] == 1 && bins[index].first == key) return bins[index].second;
+				if(state[index] == -1) break;
 			}
 		}
 		return nullopt;
@@ -231,18 +202,10 @@ public:
 		}
 		else{ //linear & quadratic probing & double hashing
 			for(int i = 0; i < bins.size(); i++){
-				if(strat == 2){
-					index = (hash(key) + i) % bins.size();
-				}
-				else if(strat == 3){
-					index = (hash(key) + i * i) % bins.size();
-				}
-				else if(strat == 4){
-					index = (hash(key) + i * hash2(key)) % bins.size();
-				}
-				if(state[index] == -1){
-					break;
-				}
+				if(strat == 2) index = (hash(key) + i) % bins.size();
+				else if(strat == 3) index = (hash(key) + i * i) % bins.size();
+				else if(strat == 4) index = (hash(key) + i * hash2(key)) % bins.size();
+				if(state[index] == -1) break;
 				if(state[index] == 1 && bins[index].first == key){
 					state[index] = 0;
 					count--;
@@ -260,15 +223,12 @@ public:
 	}
 
 	void changeStrat(const int n){ //1: separate chain, 2: linear probe, 3: quadratic probe, 4: double hash
-		if(count == 0 && n >= 1 && n <= 4){
-			strat = n;
-		}
+		if(count == 0 && n >= 1 && n <= 4) strat = n;
 	}
 
 	void print() const{
 		cout << "user login info table (username|hashedpassword):\n";
 		if(strat == 1){
-
 			for(int i = 0; i < static_cast<int>(buckets.size()); i++){
 				bool first = true;
 				cout << " bucket " << i << ": ";
@@ -294,12 +254,8 @@ public:
 static string login(const HTable& h, const string& user, const string& pass){
 	bool logged = false;
 	auto creds = h.find(user);
-	if(creds && demoHash(creds -> salt + pass + pepper) == creds -> passwordHash){
-		logged = true;
-	}
-	if(logged){
-		return "login successful";
-	}
+	if(creds && demoHash(creds -> salt + pass + pepper) == creds -> passwordHash) logged = true;
+	if(logged) return "login successful";
 	return "login failed";
 }
 
