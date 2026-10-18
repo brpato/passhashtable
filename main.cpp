@@ -3,7 +3,6 @@
 #include <random>
 #include <utility>
 #include <vector>
-#include <random>
 #include <functional>
 #include <optional>
 using namespace std;
@@ -48,8 +47,6 @@ Credentials createPass(const string& password){
 	string salt = genSalt();
 	return {salt, demoHash(salt + password + pepper)};
 }
-
-
 
 class HTable{
 private:
@@ -263,7 +260,7 @@ public:
 	}
 
 	void changeStrat(const int n){ //1: separate chain, 2: linear probe, 3: quadratic probe, 4: double hash
-		if(n >= 1 && n <= 4){
+		if(count == 0 && n >= 1 && n <= 4){
 			strat = n;
 		}
 	}
@@ -309,7 +306,7 @@ static string login(const HTable& h, const string& user, const string& pass){
 int main(){
 	HTable table;
 	table.changeStrat(1);
-	cout << "add 7 users\n";
+	cout << "add some users\n";
 	table.insert("br", createPass("passwurd"));
 	table.insert("alice2", createPass("120122"));
 	table.insert("bob", createPass("koasdmf"));
@@ -319,7 +316,7 @@ int main(){
 	table.insert("howardt", createPass("bethesda"));
 	table.print();
 
-	cout << "\nadd 2 users and remove 1 user\n";
+	cout << "\nadd a few more users and remove 1 user\n";
 	table.insert("cookieeasy", createPass("thegoat"));
 	table.insert("higuy", createPass("greeting"));
 	table.remove("user0");
