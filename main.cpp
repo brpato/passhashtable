@@ -32,6 +32,10 @@ private:
 		else{return key % bins.size();}
 	}
 
+	int hash2(const int key) const{ //alternatively hash key
+		return 1 + (key % (bins.size() - 1));
+	}
+
 	static int nextPrime(int n){
 		while(true){
 			bool prime = n >= 2;
@@ -58,13 +62,14 @@ private:
 			}
 			buckets = std::move(newBuckets);
 		}
-		else if(strat == 2 || strat == 3){ //linear & quadratic probing
+		else{ //linear & quadratic probing & double hashing
 			vector<pair<int, int>> newBins(nextPrime(bins.size() * 2));
 			vector<int> newState(newBins.size(), -1);
 			for(int i = 0; i < bins.size(); i++){
 				if(state[i]== 1){
 					int start = bins[i].first % newBins.size();
 					int newIndex = 0;
+					bool inserted = false;
 					for(int j = 0; j < newBins.size(); j++){
 						if(strat == 2){
 							newIndex = (start + j) % newBins.size();
@@ -72,11 +77,19 @@ private:
 						else if(strat == 3){
 							newIndex = (start + j * j) % newBins.size();
 						}
+						else if(strat == 4){
+							const int jump = 1 + (bins[i].first % (newBins.size() - 1));
+							newIndex = (start + j * jump) % newBins.size();
+						}
 						if(newState[newIndex] == -1){
 							newBins[newIndex] = bins[i];
 							newState[newIndex] = 1;
+							inserted = true;
 							break;
 						}
+					}
+					if(!inserted){
+						throw runtime_error("rehash fail");
 					}
 				}
 			}
@@ -87,6 +100,7 @@ private:
 
 public:
 	void insert(int key, int value){ //inserts a key and a value by into the bucket associated with the hashed key (auto resize + hash)
+		double tolerance = 0.75;
 		if(strat == 1){ //separate chaining
 			for(auto& entry : buckets[hash(key)]){
 				if(entry.first == key){
@@ -97,7 +111,8 @@ public:
 			buckets[hash(key)].push_back({key, value});
 			count++;
 		}
-		else if(strat == 2 || strat == 3){ //linear & quadratic probing
+		else{ //linear & quadratic probing & double hashing
+			tolerance = 0.5;
 			int index = 0;
 			int firstDeletedIndex = -1;
 			for(int i = 0; i < bins.size(); i++){
@@ -106,6 +121,9 @@ public:
 				}
 				else if(strat == 3){
 					index = (hash(key) + i * i) % bins.size();
+				}
+				else if(strat == 4){
+					index = (hash(key) + i * hash2(key)) % bins.size();
 				}
 				if(state[index] == 1 && bins[index].first == key){
 					bins[index].second = value;
@@ -129,7 +147,7 @@ public:
 			}
 		}
 
-		if(loadFactor() >= 0.5){
+		if(loadFactor() >= tolerance){
 		    resish();
 		}
 	}
@@ -143,13 +161,16 @@ public:
 				}
 			}
 		}
-		else if(strat == 2 || strat == 3){ //linear & quadratic probing
+		else{ //linear & quadratic probing & double hashing
 			for(int i = 0; i < bins.size(); i++){
 				if(strat == 2){
 					index = (hash(key) + i) % bins.size();
 				}
 				else if(strat == 3){
 					index = (hash(key) + i * i) % bins.size();
+				}
+				else if(strat == 4){
+					index = (hash(key) + i * hash2(key)) % bins.size();
 				}
 				if(state[index] == 1 && bins[index].first == key){
 					return bins[index].second;
@@ -174,13 +195,16 @@ public:
 			}
 			cout << "entry dne";
 		}
-		else if(strat == 2 || strat == 3){ //linear & quadratic probing
+		else{ //linear & quadratic probing & double hashing
 			for(int i = 0; i < bins.size(); i++){
 				if(strat == 2){
 					index = (hash(key) + i) % bins.size();
 				}
 				else if(strat == 3){
 					index = (hash(key) + i * i) % bins.size();
+				}
+				else if(strat == 4){
+					index = (hash(key) + i * hash2(key)) % bins.size();
 				}
 				if(state[index] == -1){
 					break;
@@ -207,23 +231,31 @@ public:
 		}
 	}
 
-	void print(){
-		cout << "hi" << endl;
+	void print() const{
+		if(strat == 1){
+			for(int i = 0; i < static_cast<int>(buckets.size()); i++){
+				bool first = true;
+				cout << "bucket " << i << ": ";
+				for(const auto& j : buckets[i]){
+					if(!first) cout << ", ";
+					cout << "(" << j.first << "|" << j.second << ")";
+					first = false;
+				}
+				cout << endl;
+			}
+		}
+		else{
+
+		}
 	}
 };
 
 int main(){
 	HTable table;
-	table.changeStrat(2);
-	table.insert(3, 1);
-	table.insert(4, 2);
-	table.insert(3, 3);
-	table.insert(14, 4);
-	cout << table.find(3) << endl;
-	cout << table.find(4) << endl;
-	cout << table.find(14) << endl;
-	table.remove(3);
-	cout << table.find(3) << endl;
-	table.insert(3, 3);
-	cout << table.loadFactor();
+	table.changeStrat(1);
+	for(int i = 0; i < 20; i++){
+		table.insert(i * 10 + 1, i);
+	}
+
+	table.print();
 }
