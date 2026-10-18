@@ -304,24 +304,65 @@ static string login(const HTable& h, const string& user, const string& pass){
 }
 
 int main(){
-	HTable table;
-	table.changeStrat(1);
-	cout << "add some users\n";
-	table.insert("br", createPass("passwurd"));
-	table.insert("alice2", createPass("120122"));
-	table.insert("bob", createPass("koasdmf"));
-	table.insert("user0", createPass("ch1k3n"));
-	table.insert("user2", createPass("passwurd"));
-	table.insert("toby", createPass("ch1k3n"));
-	table.insert("howardt", createPass("bethesda"));
-	table.print();
+	HTable table2;
+	table2.changeStrat(2);
+	cout << "<LINEAR PROBING>\nadd some users\n";
+	table2.insert("ben", createPass("tim"));
+	table2.insert("tim", createPass("jay"));
+	table2.insert("jay", createPass("ben"));
+	table2.insert("benalt", createPass("tim"));
+	table2.print();
+	cout << "\nadd some more users, trigger resish, and remove a user\n";
+	table2.insert("hedgehogfan1", createPass("ilovehedgehogs"));
+	table2.insert("newt", createPass("123"));
+	table2.remove("benalt");
+	table2.print();
 
-	cout << "\nadd a few more users and remove 1 user\n";
-	table.insert("cookieeasy", createPass("thegoat"));
-	table.insert("higuy", createPass("greeting"));
-	table.remove("user0");
-	table.print();
+	HTable table3;
+	table3.changeStrat(3);
+	cout << "\n<QUADRATIC PROBING>\nadd some users\n";
+	table3.insert("ben", createPass("tim"));
+	table3.insert("tim", createPass("jay"));
+	table3.insert("jay", createPass("ben"));
+	table3.insert("benalt", createPass("tim"));
+	table3.print();
+	cout << "\nadd some more users, trigger resish, and remove a user\n";
+	table3.insert("hedgehogfan1", createPass("ilovehedgehogs"));
+	table3.insert("newt", createPass("123"));
+	table3.remove("benalt");
+	table3.print();
 
+	HTable table4;
+	table4.changeStrat(4);
+	cout << "\n<DOUBLE HASHING>\nadd some users\n";
+	table4.insert("ben", createPass("tim"));
+	table4.insert("tim", createPass("jay"));
+	table4.insert("jay", createPass("ben"));
+	table4.insert("benalt", createPass("tim"));
+	table4.print();
+	cout << "\nadd some more users, trigger resish, and remove a user\n";
+	table4.insert("hedgehogfan1", createPass("ilovehedgehogs"));
+	table4.insert("newt", createPass("123"));
+	table4.remove("benalt");
+	table4.print();
+
+	HTable table1;
+	cout << "\n<SEPARATE CHAINING>\nadd some users\n";
+	table1.insert("br", createPass("passwurd"));
+	table1.insert("alice2", createPass("120122"));
+	table1.insert("bob", createPass("koasdmf"));
+	table1.insert("user0", createPass("ch1k3n"));
+	table1.insert("user2", createPass("passwurd"));
+	table1.insert("toby", createPass("ch1k3n"));
+	table1.insert("howardt", createPass("bethesda"));
+	table1.print();
+	cout << "\nadd some more users, trigger resish, and remove a user\n";
+	table1.insert("cookieeasy", createPass("thegoat"));
+	table1.insert("higuy", createPass("greeting"));
+	table1.remove("user0");
+	table1.print();
+
+	cout << "\n<login the latest table>";
 	string res;
 	do{
 		string user, pass;
@@ -329,7 +370,7 @@ int main(){
 		cin >> user;
 		cout << "password: ";
 		cin >> pass;
-		res = login(table, user, pass);
+		res = login(table1, user, pass);
 		cout << res << endl;
 	}while(res != "login successful");
 }
