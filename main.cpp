@@ -21,19 +21,22 @@ Demonstrate successful login, failed password, unknown user, removal, and a reha
 
 class HTable{
 private:
+	int strat = 1; //separate chaining by default because i dont believe in the rest
 	vector<vector<pair<int, int>>> buckets{10};
+	vector<pair<int, int>> bins{10};
 	int count = 0;
 
-
-	int hash(int key){ //hash key
-		return key % buckets.size();
+	int hash(const int key) const{ //hash key
+		if(strat == 1){return key % buckets.size();}
+		else{return key % buckets[strat].size();}
 	}
 
 	void resish(){ //resize and rehash existing entries
-	    vector<vector<pair<int, int>>> newBuckets{buckets.size() * 2};
+
+		vector<vector<pair<int, int>>> newBuckets{buckets.size() * 2};
 	    for(int i = 0; i < static_cast<int>(buckets.size()); i++){
 	        for(auto& entry : buckets[i]){
-	            int newIndex = entry.first % (buckets.size() * 2);
+	        	const int newIndex = entry.first % (buckets.size() * 2);
 	            newBuckets[newIndex].push_back(entry);
 	        }
 	    }
@@ -56,7 +59,7 @@ public:
 		}
 	}
 
-	int find(int key){ //return the value paired with key using key
+	int find(const int key) const{ //return the value paired with key using key
 		for(const auto& entry : buckets[hash(key)]){
 			if(entry.first == key){
 				return entry.second;
@@ -65,8 +68,8 @@ public:
 		throw runtime_error("entry dne");
 	}
 
-	void remove(int key){ //remove the entry using key
-		int index = hash(key);
+	void remove(const int key){ //remove the entry using key
+		const int index = hash(key);
 		for(int i = 0; i < static_cast<int>(buckets[index].size()); i++){
 			if(buckets[index][i].first == key){
 				buckets[index].erase(buckets[index].begin() + i);
@@ -76,8 +79,13 @@ public:
 		}
 	}
 
-	double loadFactor(){ //return total entries / buckets (average num of entries per bucket)
-		return static_cast<double>(count) / buckets.size();
+	double loadFactor() const{ //return total entries / buckets (average num of entries per bucket)
+		if(strat == 1){return static_cast<double>(count) / buckets.size();}
+		else{return static_cast<double>(count) / bins.size();}
+	}
+
+	void changeStrat(const int n){ //1: separate chain, 2: linear probe, 3: quadratic probe, 4: double hash
+		strat = n;
 	}
 };
 
