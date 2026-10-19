@@ -242,7 +242,7 @@ public:
 				cout << endl;
 			}
 		}
-		cout << " avg entry/bucket: " << loadFactor() << endl;
+		cout << " loadFactor: " << loadFactor() << endl;
 	}
 };
 
