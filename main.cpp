@@ -98,16 +98,12 @@ private:
 			vector<int> newState(newBins.size(), -1);
 			for(int i = 0; i < bins.size(); i++){
 				if(state[i]== 1){
-					size_t start = std::hash<string>{}(bins[i].first) % newBins.size();
+					const size_t start = std::hash<string>{}(bins[i].first) % newBins.size();
 					size_t newIndex = 0;
 					bool inserted = false;
 					for(int j = 0; j < newBins.size(); j++){
-						if(strat == 2){
-							newIndex = (start + j) % newBins.size();
-						}
-						else if(strat == 3){
-							newIndex = (start + j * j) % newBins.size();
-						}
+						if(strat == 2) newIndex = (start + j) % newBins.size();
+						else if(strat == 3) newIndex = (start + j * j) % newBins.size();
 						else if(strat == 4){
 							const size_t jump = 1 + (std::hash<string>{}(bins[i].first) % (newBins.size() - 1));
 							newIndex = (start + j * jump) % newBins.size();
@@ -216,8 +212,7 @@ public:
 		return false;
 	}
 
-	double loadFactor() const{
-		//return total entries / buckets (average num of entries per bucket)
+	double loadFactor() const{ //return total entries / buckets (average num of entries per bucket)
 		if(strat == 1) return static_cast<double>(count) / buckets.size();
 		return static_cast<double>(count) / bins.size();
 	}
